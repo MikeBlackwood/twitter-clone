@@ -25,5 +25,7 @@ const CreatePostWizard = () => {
       </div>
     );
   }
+  
+  return <div>not signed in</div>;
 };
 export default CreatePostWizard;

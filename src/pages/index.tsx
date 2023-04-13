@@ -4,6 +4,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import CreatePostWizard from "~/components/CreatePostWizard";
+import LoadingSpinner from "~/components/LoadingSpinner";
 import PostView from "~/components/PostView";
 
 import { api } from "~/utils/api";
@@ -12,9 +13,12 @@ const Home: NextPage = () => {
   const user = useUser();
   const {isLoading, data: posts, error} = api.post.getAll.useQuery();
   
-  if(isLoading)
+  if(isLoading )
   {
-    return <div>loading</div>
+    return (
+    <div className="flex w-full h-screen justify-center align-middle items-center">
+    <LoadingSpinner/>
+    </div>)
   }
   if(error)
   {
