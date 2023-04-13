@@ -15,8 +15,9 @@ model Post {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     content   String   @db.VarChar(255)
-    author    User     @relation(fields: [authorId], references: [id])
     authorId  String
+    User      User?    @relation(fields: [userId], references: [id])
+    userId    String?
 
     @@index([authorId])
 }

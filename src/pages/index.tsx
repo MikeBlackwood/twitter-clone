@@ -1,4 +1,5 @@
 import { SignIn, SignInButton, SignOutButton, SignUp, useUser } from "@clerk/nextjs";
+import { map } from "@trpc/server/observable";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -7,9 +8,8 @@ import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const user = useUser();
-  const posts = api.post.hello.useQuery({text: "Hello World"});
+  const {isLoading, data: posts, error} = api.post.getAll.useQuery();
   console.log(posts)
-  console.log(user)
   return (
     <>
       <Head>
@@ -25,8 +25,9 @@ const Home: NextPage = () => {
             {!!user.isLoaded && <SignOutButton/>}
           </div>
           
-         
-          
+          {posts?.map((post) => {
+            return <div key={post.id}>{post.content}</div>
+          })}
         </div>
       </main>
     </>
