@@ -1,7 +1,9 @@
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { api } from "~/utils/api";
+import LoadingSpinner from "./LoadingSpinner";
 
 const CreatePostWizard = () => {
   const user = useUser();
@@ -11,6 +13,14 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setInput("");
       void ctx.post.getAll.invalidate();
+    },
+    onError: (err) => {
+      const errorMessage = err.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Something went wrong");
+      }
     },
   });
 
@@ -36,7 +46,27 @@ const CreatePostWizard = () => {
           onChange={(e) => setInput(e.target.value)}
           disabled={isPosting}
         />
-        <button onClick={() => mutate({ content: input })}>Post</button>
+        {input !== "" && !isPosting && (
+          <button
+            onClick={() => mutate({ content: input })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (input !== "") {
+                  mutate({ content: input });
+                }
+              }
+            }}
+            disabled={isPosting}
+          >
+            Post
+          </button>
+        )}
+        {input !== "" && isPosting && (
+          <div className="flex items-center justify-center">
+            <LoadingSpinner size={10} />
+          </div>
+        )}
       </div>
     );
   }

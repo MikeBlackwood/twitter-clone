@@ -52,7 +52,7 @@ const Home: NextPage = () => {
         <div className="container h-screen w-full border-x border-slate-400 md:max-w-2xl">
           <div className="flex justify-end border-b border-slate-400">
             <div className="flex h-10 pr-2">
-              {isSignedIn && <SignInButton />}
+              {!isSignedIn && <SignInButton />}
               {isSignedIn && <SignOutButton />}
             </div>
           </div>
