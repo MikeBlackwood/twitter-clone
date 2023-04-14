@@ -1,4 +1,4 @@
-import {SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -9,21 +9,38 @@ import PostView from "~/components/PostView";
 
 import { api } from "~/utils/api";
 
-const Home: NextPage = () => {
-  const user = useUser();
-  const {isLoading, data: posts, error} = api.post.getAll.useQuery();
-  
-  if(isLoading )
-  {
+const Feed = () => {
+  const { isLoading, data: posts, error } = api.post.getAll.useQuery();
+  if (isLoading) {
     return (
-    <div className="flex w-full h-screen justify-center align-middle items-center">
-    <LoadingSpinner/>
-    </div>)
+      <div className="flex h-screen w-full items-center justify-center align-middle">
+        <LoadingSpinner />
+      </div>
+    );
   }
-  if(error)
-  {
-    return <div>error</div>
+  if (error) {
+    return <div>error</div>;
   }
+  return (
+    <div className="flex flex-col">
+      {posts?.map((fullPost) => {
+        return <PostView key={fullPost.post.id} {...fullPost} />;
+      })}
+    </div>
+  );
+};
+const Home: NextPage = () => {
+  const { user, isLoaded: userLoaded, isSignedIn } = useUser();
+  // Prefetching
+  api.post.getAll.useQuery();
+  if (!userLoaded) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center align-middle">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -32,24 +49,15 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col items-center justify-center ">
-        <div className="container w-full md:max-w-2xl border-x border-slate-400 h-screen">
-        
-          <div className="border-b border-slate-400 flex justify-end">
-            <div className="pr-2 flex h-10">
-            {!user.isSignedIn && <SignInButton/>}
-            {!!user.isLoaded && <SignOutButton/>}
+        <div className="container h-screen w-full border-x border-slate-400 md:max-w-2xl">
+          <div className="flex justify-end border-b border-slate-400">
+            <div className="flex h-10 pr-2">
+              {isSignedIn && <SignInButton />}
+              {isSignedIn && <SignOutButton />}
             </div>
           </div>
-          <div>
-            {user.isSignedIn && <CreatePostWizard/>}
-          
-          
-          </div>
-          <div className="flex flex-col"> 
-          {posts?.map((fullPost) => {
-            return <PostView key={fullPost.post.id} {...fullPost} />
-          })}
-          </div>
+          <div>{isSignedIn && <CreatePostWizard />}</div>
+          <Feed />
         </div>
       </main>
     </>
