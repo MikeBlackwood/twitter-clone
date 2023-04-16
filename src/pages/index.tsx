@@ -2,6 +2,7 @@ import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Link from "next/link";
 import CreatePostWizard from "~/components/CreatePostWizard";
+import PageLayout from "~/components/Layout";
 import LoadingSpinner from "~/components/LoadingSpinner";
 import PostView from "~/components/PostView";
 
@@ -40,20 +41,16 @@ const Home: NextPage = () => {
   }
 
   return (
-    <>
-      <main className="flex flex-col items-center justify-center ">
-        <div className="container h-screen w-full border-x border-slate-400 md:max-w-2xl">
-          <div className="flex justify-end border-b border-slate-400">
-            <div className="flex h-10 pr-2">
-              {!isSignedIn && <SignInButton />}
-              {isSignedIn && <SignOutButton />}
-            </div>
-          </div>
-          <div>{isSignedIn && <CreatePostWizard />}</div>
-          <Feed />
+    <PageLayout>
+      <div className="flex justify-end border-b border-slate-400">
+        <div className="flex h-10 pr-2">
+          {!isSignedIn && <SignInButton />}
+          {isSignedIn && <SignOutButton />}
         </div>
-      </main>
-    </>
+      </div>
+      <div>{isSignedIn && <CreatePostWizard />}</div>
+      <Feed />
+    </PageLayout>
   );
 };
 
