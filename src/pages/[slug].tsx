@@ -1,12 +1,40 @@
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "~/server/api/root";
-import { prisma } from "~/server/db";
-import superjson from "superjson";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import PageLayout from "~/components/Layout";
+import PostView from "~/components/PostView";
 import Image from "next/image";
+import LoadingSpinner from "~/components/LoadingSpinner";
+import { generateSsgHelper } from "~/server/helpers/ssgHelper";
+
+const ProfileFeed = (props: { userId: string }) => {
+  const { data, isLoading } = api.post.getPostsByUserId.useQuery({
+    userId: props.userId,
+  });
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  if (!data || data.length === 0) {
+    return <div>No posts yet</div>;
+  }
+  if (data) {
+    return (
+      <div className="flex flex-col">
+        {data.map((fullPost) => {
+          return (
+            <PostView
+              key={fullPost.post.id}
+              post={fullPost.post}
+              author={fullPost.author}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+  return <div>error</div>;
+};
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
     username,
@@ -34,19 +62,19 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           />
         </div>
         <div className="h-[64px]"></div>
-        <div className="flex p-4 text-2xl">{`@${data.username ?? ""}`}</div>
-        <div className="border-b border-slate-400"></div>
+        <div className="flex border-b p-4 text-2xl">{`@${
+          data.username ?? ""
+        }`}</div>
+        <div className="border-b border-slate-400">
+          <ProfileFeed userId={data.id} />
+        </div>
       </PageLayout>
     </>
   );
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = createServerSideHelpers({
-    router: appRouter,
-    ctx: { prisma, userId: null },
-    transformer: superjson, // optional - adds superjson serialization
-  });
+  const ssg = generateSsgHelper();
 
   const slug = context.params?.slug;
 

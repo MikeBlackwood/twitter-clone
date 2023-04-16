@@ -10,13 +10,15 @@ const PostView = (props: PostWithUser) => {
   const { post, author } = props;
   return (
     <div className="flex gap-3 border-b border-slate-400 p-4" key={post.id}>
-      <Image
-        className="h-10 w-10 rounded-full"
-        src={author.profileImageUrl}
-        width={56}
-        height={56}
-        alt=""
-      />
+      <Link href={`/@${author.username}`}>
+        <Image
+          className="h-10 w-10 rounded-full"
+          src={author.profileImageUrl}
+          width={56}
+          height={56}
+          alt=""
+        />
+      </Link>
       <div className="flex flex-col">
         <div className="flex">
           <Link href={`/@${author.username}`}>
